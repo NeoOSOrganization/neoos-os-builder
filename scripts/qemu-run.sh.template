@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+timeout 180 qemu-system-x86_64 -cpu Nehalem -boot order=d \
+  -cdrom "$SCRIPT_DIR/@ISO@" \
+  -drive file="$SCRIPT_DIR/disk1.img",format=raw \
+  -drive file="$SCRIPT_DIR/disk2.img",format=raw \
+  -display none -no-reboot -serial file:"$SCRIPT_DIR/qemu.log"
+echo "Boot complete -- log: $SCRIPT_DIR/qemu.log"

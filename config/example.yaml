@@ -1,0 +1,15 @@
+kernel:
+  version: "main"    # a branch, tag, or "main"
+
+tests:
+  include: false     # pull the ~65-program regression suite into the image?
+                      # false by default -- a production image shouldn't
+                      # carry the regression suite just because it's handy
+                      # in development.
+
+ports:
+  - busybox
+  - 3d-ascii-viewer
+
+iso:
+  name: "neoos-custom-build"
