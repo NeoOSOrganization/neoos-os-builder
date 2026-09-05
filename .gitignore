@@ -1,0 +1,15 @@
+build/
+*.iso
+*.img
+*.log
+
+__pycache__/
+*.pyc
+.env
+
+.idea/
+.vscode/
+*.swp
+
+.DS_Store
+Thumbs.db
