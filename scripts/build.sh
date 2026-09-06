@@ -44,6 +44,7 @@ echo "-- building neoos-musl --"
 (cd "$WORK/neoos-musl" && make KERNEL_SHIM_DIR="$WORK/neoos-kernel/third_party/shim")
 
 EMBED_DIRS=""
+PORT_DIRS=""
 
 if [ "$TESTS_INCLUDE" = "true" ]; then
     echo "-- building neoos-kernel-tests-common (tests.include: true) --"
@@ -54,18 +55,24 @@ if [ "$TESTS_INCLUDE" = "true" ]; then
     EMBED_DIRS="$EMBED_DIRS $WORK/neoos-kernel-tests-common/build"
 fi
 
+# Ports install as real disk files, not via embedfs -- see
+# docs/superpowers/specs/2026-09-06-os-builder-port-install-design.md
+# in neoos-kernel. EMBED_DIRS stays reserved for the regression suite
+# above: a port is something a user chooses to have available, not
+# something that should auto-run at boot.
 for port in $PORTS; do
     echo "-- building neoos-$port --"
     git clone --depth 1 --recurse-submodules "$org/neoos-$port" "$WORK/$port" 2>&1 | tail -1
     (cd "$WORK/$port" && make MUSL_DIR="$WORK/neoos-musl/build-output")
-    EMBED_DIRS="$EMBED_DIRS $WORK/$port/build"
+    PORT_DIRS="$PORT_DIRS $port=$WORK/$port/build"
 done
 
-echo "-- building neoos-kernel + assembling image (EMBED_DIRS:$EMBED_DIRS ) --"
+echo "-- building neoos-kernel + assembling image (EMBED_DIRS:$EMBED_DIRS PORT_DIRS:$PORT_DIRS) --"
 (cd "$WORK/neoos-kernel" && make \
     LIBNEOOS_DIR="$WORK/neoos-libneoos/build-output" \
     MUSL_DIR="$WORK/neoos-musl/build-output" \
     EMBED_DIRS="$EMBED_DIRS" \
+    PORT_DIRS="$PORT_DIRS" \
     iso disk-image)
 
 mkdir -p build
