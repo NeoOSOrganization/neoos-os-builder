@@ -55,12 +55,13 @@ image shouldn't carry the regression suite by default, but a
 development or CI image can opt in.
 
 Each entry under `ports:` is installed as real files on the built
-image, not baked into the kernel binary: a port's build output lands
-under `/opt/<name>/` on disk, and each `.nex` binary it produces also
-gets a copy in `/bin/` so it's directly runnable by name from an
-`nsh` login shell (e.g. `doom`, `busybox`). Nothing auto-launches —
-picking a port makes it *available*, the same way installing a
-package on a real OS doesn't run it for you.
+image, not baked into the kernel binary: each `.nex` binary a port
+produces lands at `/usr/local/bin/` (on `$PATH`, so it's directly
+runnable by name from an `nsh` login shell — e.g. `doom`, `busybox`),
+and any other file it ships (a data file like doom's `doom1.wad`)
+lands under `/opt/<name>/` for the port's own code to find. Nothing
+auto-launches — picking a port makes it *available*, the same way
+installing a package on a real OS doesn't run it for you.
 
 ## Documentation
 
