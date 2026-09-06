@@ -15,8 +15,13 @@ config-driven mode only.
 make                          # builds config/example.yaml
 make CONFIG=myconfig.yaml     # or your own config
 make test                     # build, then boot headless and check it reached the scheduler
-make run                      # build, then boot interactively in QEMU
+make run                      # build, then boot interactively in a real QEMU window
 ```
+
+By default the built image has no login prompt at all — it boots
+straight into the automated test-boot workload and powers off. Set
+`shell.interactive: true` in your config (see Configuration below) if
+you actually want to log in and use it.
 
 ## Output
 
@@ -44,6 +49,11 @@ ports:
   - busybox
   - 3d-ascii-viewer
 
+shell:
+  interactive: false  # boot to an nsh login prompt instead of the
+                      # test-boot marker? Mutually exclusive with
+                      # tests.include: true.
+
 iso:
   name: "neoos-custom-build"
 ```
@@ -63,6 +73,15 @@ lands under `/opt/<name>/` for the port's own code to find. Nothing
 auto-launches — picking a port makes it *available*, the same way
 installing a package on a real OS doesn't run it for you.
 
+`shell.interactive: true` is what makes a port actually reachable by a
+human: it swaps the image's inittab for a real login prompt (accounts
+`god`/`god`, uid 0, and `neo`/`neo`, uid 1000) instead of the
+unattended test-boot marker every image gets by default. Run the
+result with `make run` (or `./build/qemu-run.sh`), log in, and any
+installed port is on `$PATH` by name. It's rejected together with
+`tests.include: true` — a human login and the key-injecting regression
+suite can't share one tty.
+
 ## Documentation
 
 - **Build conventions across the org:** https://neoosorganization.github.io/neoos-docs/docs/build-conventions
@@ -79,4 +98,4 @@ Same as NeoOS kernel (license TBD).
 - **[neoos-libneoos](https://github.com/NeoOSOrganization/neoos-libneoos)** — NeoOS-native libc
 - **[neoos-kernel-tests-common](https://github.com/NeoOSOrganization/neoos-kernel-tests-common)** — Regression suite
 - **[neoos-docs](https://github.com/NeoOSOrganization/neoos-docs)** — Guides and architecture
-- **[neoos-busybox](https://github.com/NeoOSOrganization/neoos-busybox)**, **[neoos-3d-ascii-viewer](https://github.com/NeoOSOrganization/neoos-3d-ascii-viewer)** — Ports
+- **[neoos-busybox](https://github.com/NeoOSOrganization/neoos-busybox)**, **[neoos-3d-ascii-viewer](https://github.com/NeoOSOrganization/neoos-3d-ascii-viewer)**, **[neoos-doom](https://github.com/NeoOSOrganization/neoos-doom)** — Ports

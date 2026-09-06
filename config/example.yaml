@@ -12,5 +12,12 @@ ports:
   - 3d-ascii-viewer
   - doom
 
+shell:
+  interactive: false  # boot to an nsh login prompt (god/god, neo/neo)
+                      # instead of the automated test-boot marker?
+                      # Mutually exclusive with tests.include: true --
+                      # a human login and key-injecting regression
+                      # tests cannot share one tty.
+
 iso:
   name: "neoos-custom-build"

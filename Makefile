@@ -19,14 +19,24 @@ clean:
 
 # Boots the just-built image headless and checks it reached the
 # scheduler -- the same PASS/FAIL contract neoos-kernel's own `make
-# test` uses, since the image IS a neoos-kernel build.
+# test` uses, since the image IS a neoos-kernel build. This does NOT
+# reuse build/qemu-run.sh: that script is the INTERACTIVE launcher
+# (`make run`, a real graphical window, no timeout -- see
+# scripts/qemu-run.sh.template) and would hang here waiting for a
+# human to close the window instead of exiting on its own.
 test: all
 	@iso=$$(ls build/*.iso | head -1); \
-	name=$$(basename "$$iso" .iso); \
-	(cd build && ./qemu-run.sh); \
+	timeout 180 qemu-system-x86_64 -cpu Nehalem -boot order=d \
+	    -cdrom "$$iso" \
+	    -drive file=build/disk1.img,format=raw \
+	    -drive file=build/disk2.img,format=raw \
+	    -display none -no-reboot -serial file:build/qemu.log; \
 	grep -q "NeoOS: interrupts enabled, starting scheduler" build/qemu.log || \
 	    { echo "TEST FAILED: boot marker never printed"; exit 1; }
 	@echo "TEST PASSED: image booted and reached the scheduler"
 
+# The real graphical, interactive launch -- see
+# scripts/qemu-run.sh.template for why it's a separate script (and
+# separate from `test`, above) rather than one shared invocation.
 run: all
 	cd build && ./qemu-run.sh
